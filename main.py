@@ -60,7 +60,7 @@ def add_event(item: Item):
         "id" : id,
         "name" : item.event,
         "date" : item.date,
-        "date_added" : datetime.date.today().strftime
+        "date_added" : datetime.date.today().strftime("%Y-%m-%d")
     }
 
     events = ()
