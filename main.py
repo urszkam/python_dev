@@ -64,21 +64,23 @@ def add_event(item: Item):
         "date_added" : datetime.date.today().strftime("%Y-%m-%d"),
     }
 
-    event = []
-    event.append(calendar)
+    events = []
+    events.append(calendar)
 
     return calendar
 
 
     
-# app.get("/events/{date}",status_code=200)
-# async def event_on_date(date: str, response: Response):
-#     global event
-#     if type(date) != str:
-#         response.status_code = status.HTTP_400_BAD_REQUEST
-#     else:
-#         if date in event['date']:
-#             return event
-#         else:
-#             response.status_code = status.HTTP_404_NOT_FOUND
-#     return response.status_code
+app.get("/events/{date}",status_code=200)
+def event_date(date: str, response: Response):
+    global calendar
+    try:
+        datetime.datetime.strptime(date, "%Y-%m-%d")
+    except:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+    
+    if date in calendar['date']:
+        return calendar
+    else:
+        response.status_code = status.HTTP_404_NOT_FOUND
+    return response.status_code
