@@ -72,9 +72,9 @@ def add_event(item: Item):
 
     
 app.get("/events/{date}",status_code=200)
-def event_date(date: str, response: Response):
+async def event_date(date: str, response: Response):
     global calendar
-    if type(date) != str:
+    if not datetime.strptime(date, "%Y-%m-%d"):
         response.status_code = status.HTTP_400_BAD_REQUEST
     else:
         if date in calendar['date']:
