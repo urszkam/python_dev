@@ -59,7 +59,7 @@ def add_event(item: Item, request: Request):
     calendar = {
         "date" : item["date"],
         "name" : item["event"],
-        "date_added" : datetime.date.today().strftime,
+        "date_added" : datetime.date.today(),
         "id" : id
     }
     events = ()
