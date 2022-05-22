@@ -53,10 +53,9 @@ class Item(BaseModel):
     date: str
     event: str
 
-@app.put("/events", status_code=200)
+
 def add_event(item: Item):
     app.counter += 1
-    global calendar
 
     calendar = {
         "id" : app.counter,
@@ -73,6 +72,10 @@ def add_event(item: Item):
 
     return calendar
 
+@app.put("/events", status_code=200)
+def sth():
+    sth = add_event()
+    return sth
 
     
 app.get("/events/{date}",status_code=200)
