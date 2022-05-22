@@ -53,15 +53,16 @@ class Item(BaseModel):
     event: str
 
 @app.put("/events", status_code=200)
-def add_event(item: Item, request: Request):
+def add_event(item: Item):
     id = collections.Counter()
 
     calendar = {
-        "date" : item["date"],
-        "name" : item["event"],
-        "date_added" : datetime.date.today(),
-        "id" : id
+        "id" : id,
+        "name" : item.event,
+        "date" : item.date,
+        "date_added" : datetime.date.today().strftime
     }
+
     events = ()
     events.append(calendar)
     return calendar
