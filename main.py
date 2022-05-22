@@ -83,8 +83,8 @@ def event_date(date: str, response: Response):
     for i, event in enumerate(events):
         if date == event['date']:
             index = i
-            
+
     if index is not None:
-        print(events[index])
+        return events[index]
     else:
         response.status_code = status.HTTP_404_NOT_FOUND
