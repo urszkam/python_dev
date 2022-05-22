@@ -6,7 +6,7 @@
 from fastapi import FastAPI, Request, Response, status
 from pydantic import BaseModel
 import datetime
-import collections
+from collections import Counter
 
 
 app = FastAPI()
@@ -54,7 +54,7 @@ class Item(BaseModel):
 
 @app.put("/events", status_code=200)
 def add_event(item: Item):
-    id = collections.Counter()
+    id = Counter()
 
     calendar = {
         "id" : id,
@@ -63,8 +63,9 @@ def add_event(item: Item):
         "date_added" : datetime.date.today().strftime("%Y-%m-%d")
     }
 
-    events = ()
+    events = []
     events.append(calendar)
+
     return calendar
 
 
