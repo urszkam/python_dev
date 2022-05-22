@@ -56,35 +56,44 @@ class Item(BaseModel):
 @app.put("/events", status_code=200)
 def add_event(item: Item):
     app.counter += 1
-
-    calendar = {
+    global event
+    event = {
         "id" : app.counter,
         "name" : item.event,
         "date" : item.date,
         "date_added" : datetime.date.today().strftime("%Y-%m-%d"),
     }
     
-    global events
     events = []
-    events.append(calendar)
+    events.append(event)
 
-    return calendar
+    return event
 
 
-    
 app.get("/events/{date}",status_code=200)
-def event_date(date: str, response: Response):
-    try:
-        datetime.datetime.strptime(date, "%Y-%m-%d")
-    except:
+async def event_on_date(date: str, response: Response):
+    if type(date) != str:
         response.status_code = status.HTTP_400_BAD_REQUEST
-        return "Nope"
-
-    for i, event in enumerate(events):
-        if date == event['date']:
-            index = i
-
-    if index is not None:
-        return events[index]
     else:
-        response.status_code = status.HTTP_404_NOT_FOUND
+        if date in event['date']:
+            return event
+        else:
+            response.status_code = status.HTTP_404_NOT_FOUND
+    return response.status_code
+    
+# app.get("/events/{date}",status_code=200)
+# def event_date(date: str, response: Response):
+#     try:
+#         datetime.datetime.strptime(date, "%Y-%m-%d")
+#     except:
+#         response.status_code = status.HTTP_400_BAD_REQUEST
+#         return "Nope"
+
+#     for i, event in enumerate(events):
+#         if date == event['date']:
+#             index = i
+
+#     if index is not None:
+#         return events[index]
+#     else:
+#         response.status_code = status.HTTP_404_NOT_FOUND
