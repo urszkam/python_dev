@@ -53,9 +53,10 @@ class Item(BaseModel):
     date: str
     event: str
 
-
+@app.put("/events", status_code=200)
 def add_event(item: Item):
     app.counter += 1
+    global calendar
 
     calendar = {
         "id" : app.counter,
@@ -64,28 +65,23 @@ def add_event(item: Item):
         "date_added" : datetime.date.today().strftime("%Y-%m-%d"),
     }
     
-
+    global events
     events = []
-    dates = []
     events.append(calendar)
-    dates.append(calendar['date'])
 
     return calendar
 
-@app.put("/events", status_code=200)
-def sth():
-    sth = add_event()
-    return sth
 
     
 app.get("/events/{date}",status_code=200)
 def event_date(date: str, response: Response):
     try:
         datetime.datetime.strptime(date, "%Y-%m-%d")
-    except Exception:
+    except ValueError:
         response.status_code = status.HTTP_400_BAD_REQUEST
+        return "Nope"
 
     if date in calendar['date']:
-        return calendar
+        return events
     else:
         response.status_code = status.HTTP_404_NOT_FOUND
