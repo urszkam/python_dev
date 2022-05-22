@@ -3,8 +3,11 @@
 # class HerokuApp:
 #     app_url = "https://fierce-spire-87558.herokuapp.com/"
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response, status
 from pydantic import BaseModel
+import datetime
+import collections
+
 
 app = FastAPI()
 
@@ -34,40 +37,38 @@ def options():
 
 days = {1: "monday", 2: "tuesday", 3: "wednesday", 4: "thursday", 5: "friday", 6: "saturday", 7: "sunday"}
 
-@app.get("/day", status_code=200)
-def day(name: str, number: int):
+@app.get("/day")
+def day(name: str, number: int, response: Response):
     if number in days:
         if days.get(number) == name:
             return days[number]
         else:
-            raise HTTPException(status_code=404, detail={"Day mismatch"})
+            response.status_code = status.HTTP_400_BAD_REQUEST
     else:
-        raise HTTPException(status_code=404, detail={"Day or number": "not viable"})
+        response.status_code = status.HTTP_400_BAD_REQUEST
 
-# class EventDetails(BaseModel):
-#     date: str
-#     event: str
 
-# @app.put("/events", status_code=200)
-# async def add_event(item: EventDetails, request: Request):
-#     json_info = await request.json()
-#     id = counter()
+class EventDetails(BaseModel):
+    date: str
+    event: str
 
-#     new_json = {
-#         "date" : json_info["date"],
-#         "name" : json_info["event"],
-#         "date_added" : datetime.date.today().strftime,
-#         "id" : id
-#     }
+@app.put("/events", status_code=200)
+async def add_event(item: EventDetails, request: Request):
+    json_info = await request.json()
+    id = collections.Counter()
+
+    calendar = {
+        "date" : json_info["date"],
+        "name" : json_info["event"],
+        "date_added" : datetime.date.today().strftime,
+        "id" : id
+    }
+    events = ()
+    events.append(calendar)
+    return calendar
+
 
     
-
-
-
-
-
-
-
 # app.get("/event/{date}",status_code=200)
 # async def event_on_date(date: str, response: Response):
 #     if type(date) != str:
