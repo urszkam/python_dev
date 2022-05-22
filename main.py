@@ -48,18 +48,17 @@ def day(name: str, number: int, response: Response):
         response.status_code = status.HTTP_400_BAD_REQUEST
 
 
-class EventDetails(BaseModel):
+class Item(BaseModel):
     date: str
     event: str
 
 @app.put("/events", status_code=200)
-async def add_event(item: EventDetails, request: Request):
-    json_info = await request.json()
+def add_event(item: Item, request: Request):
     id = collections.Counter()
 
     calendar = {
-        "date" : json_info["date"],
-        "name" : json_info["event"],
+        "date" : item["date"],
+        "name" : item["event"],
         "date_added" : datetime.date.today().strftime,
         "id" : id
     }
