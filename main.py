@@ -32,6 +32,18 @@ def put():
 def options():
     return {"method": "OPTIONS"}
 
+days = {1: "monday", 2: "tuesday", 3: "wednesday", 4: "thursday", 5: "friday", 6: "saturday", 7: "sunday"}
+
+@app.get("/day", status_code=200)
+def day(name: str, number: int):
+    if number in days:
+        if days.get(number) == name:
+            return days[number]
+        else:
+            raise HTTPException(status_code=404, detail={"Day mismatch"})
+    else:
+        raise HTTPException(status_code=404, detail={"Day or number": "not viable"})
+
 # class EventDetails(BaseModel):
 #     date: str
 #     event: str
