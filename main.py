@@ -10,6 +10,7 @@ from collections import Counter
 
 
 app = FastAPI()
+app.counter = 0
 
 @app.get("/")
 def root():
@@ -54,7 +55,7 @@ class Item(BaseModel):
 
 @app.put("/events", status_code=200)
 def add_event(item: Item):
-    id = int(Counter())
+    id = Counter()
 
     calendar = {
         "name" : item.event,
