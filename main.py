@@ -74,12 +74,12 @@ def add_event(item: Item):
 
     
 app.get("/events/{date}",status_code=200)
-async def event_date(date: str, response: Response):
+def event_date(date: str, response: Response):
     global events
     global dates
     try: 
         datetime.datetime.strptime(date, "%Y-%m-%d")
-    except ValueError:
+    except:
         response.status_code = status.HTTP_400_BAD_REQUEST
     if date in dates:
         ind = dates.index(date)
@@ -87,7 +87,3 @@ async def event_date(date: str, response: Response):
     else:
         response.status_code = status.HTTP_404_NOT_FOUND
     return response.status_code
-
-
-data = "1990-04-01"
-print(data.isoformat())
