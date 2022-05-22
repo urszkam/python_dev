@@ -74,13 +74,11 @@ def add_event(item: Item):
 app.get("/events/{date}",status_code=200)
 def event_date(date: str, response: Response):
     global calendar
-    try:
-        datetime.datetime.strptime(date, "%Y-%m-%d")
-    except:
+    if type(date) != str:
         response.status_code = status.HTTP_400_BAD_REQUEST
-    
-    if date in calendar['date']:
-        return calendar
     else:
-        response.status_code = status.HTTP_404_NOT_FOUND
+        if date in calendar['date']:
+            return calendar
+        else:
+            response.status_code = status.HTTP_404_NOT_FOUND
     return response.status_code
