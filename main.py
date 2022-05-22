@@ -58,10 +58,10 @@ def add_event(item: Item):
     id = Counter()
 
     calendar = {
+        "id" : id,
         "name" : item.event,
         "date" : item.date,
         "date_added" : datetime.date.today().strftime("%Y-%m-%d"),
-        "id" : id
     }
 
     event = []
@@ -71,14 +71,14 @@ def add_event(item: Item):
 
 
     
-app.get("/events/{date}",status_code=200)
-async def event_on_date(date: str, response: Response):
-    global event
-    if type(date) != str:
-        response.status_code = status.HTTP_400_BAD_REQUEST
-    else:
-        if date in event['date']:
-            return event
-        else:
-            response.status_code = status.HTTP_404_NOT_FOUND
-    return response.status_code
+# app.get("/events/{date}",status_code=200)
+# async def event_on_date(date: str, response: Response):
+#     global event
+#     if type(date) != str:
+#         response.status_code = status.HTTP_400_BAD_REQUEST
+#     else:
+#         if date in event['date']:
+#             return event
+#         else:
+#             response.status_code = status.HTTP_404_NOT_FOUND
+#     return response.status_code
