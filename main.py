@@ -71,10 +71,8 @@ def add_event(item: Item):
 
     return cal
 
-class GetEvent(BaseModel):
-    msg: list
 
-@app.get("/events/{date}",response_model = GetEvent, status_code=200)
+@app.get("/events/{date}", status_code=200)
 async def event_on_date(date: str, response: Response):
     try:
         datetime.datetime.strptime(date, "%Y-%m-%d")
@@ -83,7 +81,7 @@ async def event_on_date(date: str, response: Response):
 
     for e in events:
         if date == e['date']:    
-            return GetEvent(msg=events)
+            return events
     else:
         response.status_code = status.HTTP_404_NOT_FOUND
     
