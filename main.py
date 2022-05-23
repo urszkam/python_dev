@@ -78,12 +78,12 @@ def event_on_date(date: str, response: Response):
         datetime.datetime.strptime(date, "%Y-%m-%d")
     except ValueError:
         response.status_code = status.HTTP_400_BAD_REQUEST
-
-    for e in events:
-        if date == e['date']:    
-            return events
-        else:
-            response.status_code = status.HTTP_404_NOT_FOUND
+    else:
+        for e in events:
+            if date == e['date']:    
+                return events
+            else:
+                response.status_code = status.HTTP_404_NOT_FOUND
     
 # app.get("/events/{date}",status_code=200)
 # def event_date(date: str, response: Response):
