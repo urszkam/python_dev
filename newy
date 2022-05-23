@@ -2,43 +2,9 @@ from pydantic import BaseModel
 import datetime
 
 
-
-
-
-def add_event(date, event):
-    counter = -1
-    counter += 1
-
-    calendar = {
-        "id" : counter,
-        "name" : event,
-        "date" : date,
-        "date_added" : datetime.date.today().strftime("%Y-%m-%d"),
-    }
-    
-    global events
-    events = []
-    events.append(calendar)
-    print (calendar)
-    return calendar
-    
-
 def event_date(date, event):
-    add_event(date, event)
 
-    try:
-        datetime.datetime.strptime(date, "%Y-%m-%d")
-    except:
-        print("status.HTTP_400_BAD_REQUEST")
-        return "Nope"
-    for i, event in enumerate(events):
-        if date == event['date']:
-            index = i
-    if index is not None:
-        print(events[index])
-        print(events[:])
-    else:
-        print ('status.HTTP_404_NOT_FOUND')
+    print(datetime.datetime.strptime(date, "%Y-%m-%d"))
 
 
 event_date(date="1900-13-04", event="Urodziny")

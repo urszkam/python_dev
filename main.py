@@ -73,10 +73,10 @@ def add_event(item: Item):
 
 
 @app.get("/events/{date}", status_code=200)
-async def event_on_date(date: str, response: Response):
+def event_on_date(date: str, response: Response):
     try:
         datetime.datetime.strptime(date, "%Y-%m-%d")
-    except:
+    except ValueError:
         response.status_code = status.HTTP_400_BAD_REQUEST
 
     for e in events:
