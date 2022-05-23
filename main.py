@@ -53,13 +53,13 @@ class Item(BaseModel):
     date: str
     event: str
 
-@app.put("/events/", status_code=200)
+@app.put("/events", status_code=200)
 def add_event(item: Item):
     app.counter += 1
-    global event
+    global cal
     global events
 
-    event = {
+    cal = {
         "id" : app.counter,
         "name" : item.event,
         "date" : item.date,
@@ -67,20 +67,19 @@ def add_event(item: Item):
     }
     
     events = []
-    events.append(event)
+    events.append(cal)
 
-    return event
+    return cal
 
 class GetEvent(BaseModel):
     msg: list
 
-app.get("/events/{date}",response_model = GetEvent)
+app.get("/events/{date}",response_model = GetEvent, status_code=200)
 async def event_on_date(date: str, response: Response):
     try:
         datetime.datetime.strptime(date, "%Y-%m-%d")
     except:
         response.status_code = status.HTTP_400_BAD_REQUEST
-        return "Nope"
 
     for e in events:
         if date == e['date']:    
