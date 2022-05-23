@@ -82,8 +82,8 @@ async def event_on_date(date: str, response: Response):
     for e in events:
         if date == e['date']:    
             return events
-    else:
-        response.status_code = status.HTTP_404_NOT_FOUND
+        else:
+            response.status_code = status.HTTP_404_NOT_FOUND
     
 # app.get("/events/{date}",status_code=200)
 # def event_date(date: str, response: Response):
