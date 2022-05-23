@@ -74,7 +74,7 @@ def add_event(item: Item):
 class GetEvent(BaseModel):
     msg: list
 
-app.get("/events/{date}",response_model = GetEvent, status_code=200)
+@app.get("/events/{date}",response_model = GetEvent, status_code=200)
 async def event_on_date(date: str, response: Response):
     try:
         datetime.datetime.strptime(date, "%Y-%m-%d")
