@@ -5,37 +5,41 @@
 
 from fastapi import FastAPI, Request, HTTPException, Response, status, Cookie, Depends
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from hashlib import sha256
+from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 import datetime
-from collections import Counter
 
 
-# HTMLResponse(content=html_content, status_code=200)
+
 app = FastAPI()
 app.secret_key = "very constant and random secret, best 64+ characters"
 app.access_tokens = []
 security = HTTPBasic()
+templates = Jinja2Templates(directory="templates")
 
 @app.post('/check', response_class= HTMLResponse, status_code = 200)
-def login(response: Response,credentials: HTTPBasicCredentials = Depends(security)):
+def login(credentials: HTTPBasicCredentials = Depends(security)):
     today = datetime.datetime.now()
     birthdate = datetime.datetime.strptime(credentials.password, "%Y-%m-%d")
     age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
 
     if age >= 16:
-        return """
-        <html>
-            <head></head>
-            <body>
-                <h1>Welcome {{credentials.username}}! You are {{age}}</h1>
-            </body>
-        </html>
-        """
+        return templates.TemplateResponse("check.html.j2", {"username": credentials.username, "age": age})
     else:
         raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED)
+
+
+
+# @app.post('/info/{?format}')
+# HTMLResponse(content=html_content, status_code=200)
+# if json:
+# {
+#     "user_agent": "<wartość headera User-Agent wyslanego przez użytkownika>"
+# }
+
+
 
 
 
