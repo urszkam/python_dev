@@ -3,14 +3,59 @@
 # class HerokuApp:
 #     app_url = "https://fierce-spire-87558.herokuapp.com/"
 
-from fastapi import FastAPI, Request, Response, status
+from fastapi import FastAPI, Request, Response, status, Cookie
+from hashlib import sha256
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 import datetime
 from collections import Counter
 
 
+# HTMLResponse(content=html_content, status_code=200)
 app = FastAPI()
+app.secret_key = "very constant and random secret, best 64+ characters"
+app.access_tokens = []
+
+@app.post('/check', response_class= HTMLResponse, status_code = 200)
+def login(user: str, password: str, birthdate: str, response: Response):
+    session_token = sha256(f"{user}{password}{birthdate}{app.secret_key}".encode()).hexdigest()
+    app.access_tokens.append(session_token)
+    response.set_cookie(key="session_token", value=session_token)
+
+    today = datetime.datetime.now()
+    birthdate = datetime.datetime.strptime(birthdate, "%Y-%m-%d")
+    age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
+
+    if age >= 16:
+        return """
+        <html>
+            <head></head>
+            <body>
+                <h1>Welcome {{user}}! You are {{age}}</h1>
+            </body>
+        </html>
+        """
+    else:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @app.get('/start', response_class= HTMLResponse)
@@ -23,6 +68,7 @@ def html():
         </body>
     </html>
     """
+
 
 
 
