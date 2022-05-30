@@ -17,13 +17,13 @@ app.secret_key = "very constant and random secret, best 64+ characters"
 app.access_tokens = []
 
 @app.post('/check', response_class= HTMLResponse, status_code = 200)
-def login(user: str, password: str, birthdate: str, response: Response):
-    session_token = sha256(f"{user}{password}{birthdate}{app.secret_key}".encode()).hexdigest()
+def login(login: str, password: str, response: Response):
+    session_token = sha256(f"{login}{password}{app.secret_key}".encode()).hexdigest()
     app.access_tokens.append(session_token)
     response.set_cookie(key="session_token", value=session_token)
 
     today = datetime.datetime.now()
-    birthdate = datetime.datetime.strptime(birthdate, "%Y-%m-%d")
+    birthdate = datetime.datetime.strptime(password, "%Y-%m-%d")
     age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
 
     if age >= 16:
@@ -31,7 +31,7 @@ def login(user: str, password: str, birthdate: str, response: Response):
         <html>
             <head></head>
             <body>
-                <h1>Welcome {{user}}! You are {{age}}</h1>
+                <h1>Welcome {{login}}! You are {{age}}</h1>
             </body>
         </html>
         """
