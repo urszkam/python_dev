@@ -3,7 +3,8 @@
 # class HerokuApp:
 #     app_url = "https://fierce-spire-87558.herokuapp.com/"
 
-from fastapi import FastAPI, Request, Response, status, Cookie
+from fastapi import FastAPI, Request, Response, status, Cookie, Depends
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from hashlib import sha256
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
@@ -15,15 +16,12 @@ from collections import Counter
 app = FastAPI()
 app.secret_key = "very constant and random secret, best 64+ characters"
 app.access_tokens = []
+security = HTTPBasic()
 
 @app.post('/check', response_class= HTMLResponse, status_code = 200)
-def login(username: str, password: str, response: Response):
-    session_token = sha256(f"{username}{password}{app.secret_key}".encode()).hexdigest()
-    app.access_tokens.append(session_token)
-    response.set_cookie(key="session_token", value=session_token)
-
+def login(response: Response,credentials: HTTPBasicCredentials = Depends(security)):
     today = datetime.datetime.now()
-    birthdate = datetime.datetime.strptime(password, "%Y-%m-%d")
+    birthdate = datetime.datetime.strptime(credentials.password, "%Y-%m-%d")
     age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
 
     if age >= 16:
@@ -31,7 +29,7 @@ def login(username: str, password: str, response: Response):
         <html>
             <head></head>
             <body>
-                <h1>Welcome {{username}}! You are {{age}}</h1>
+                <h1>Welcome {{credentials.username}}! You are {{age}}</h1>
             </body>
         </html>
         """
