@@ -4,6 +4,7 @@
 #     app_url = "https://fierce-spire-87558.herokuapp.com/"
 
 from fastapi import FastAPI, Request, Response, status
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 import datetime
 from collections import Counter
@@ -12,7 +13,16 @@ from collections import Counter
 app = FastAPI()
 
 
-
+@app.get('/start', response_class= HTMLResponse)
+def html():
+    return """
+    <html>
+        <head></head>
+        <body>
+            <h1>The unix epoch started at 1970-01-01</h1> 
+        </body>
+    </html>
+    """
 
 
 
