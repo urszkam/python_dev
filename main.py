@@ -17,8 +17,8 @@ app.secret_key = "very constant and random secret, best 64+ characters"
 app.access_tokens = []
 
 @app.post('/check', response_class= HTMLResponse, status_code = 200)
-def login(login: str, password: str, response: Response):
-    session_token = sha256(f"{login}{password}{app.secret_key}".encode()).hexdigest()
+def login(username: str, password: str, response: Response):
+    session_token = sha256(f"{username}{password}{app.secret_key}".encode()).hexdigest()
     app.access_tokens.append(session_token)
     response.set_cookie(key="session_token", value=session_token)
 
@@ -31,7 +31,7 @@ def login(login: str, password: str, response: Response):
         <html>
             <head></head>
             <body>
-                <h1>Welcome {{login}}! You are {{age}}</h1>
+                <h1>Welcome {{username}}! You are {{age}}</h1>
             </body>
         </html>
         """

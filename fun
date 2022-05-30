@@ -1,6 +1,8 @@
 import datetime
 
-birthdate = '1990-06-01'
+birthdate = datetime(input('Ile?'))
+
+print(birthdate)
 
 today = datetime.datetime.now()
 birthdate = datetime.datetime.strptime(birthdate, "%Y-%m-%d")
