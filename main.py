@@ -3,7 +3,7 @@
 # class HerokuApp:
 #     app_url = "https://fierce-spire-87558.herokuapp.com/"
 
-from fastapi import FastAPI, Request, Response, status, Cookie, Depends
+from fastapi import FastAPI, Request, HTTPException, Response, status, Cookie, Depends
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from hashlib import sha256
 from fastapi.responses import HTMLResponse
@@ -34,7 +34,8 @@ def login(response: Response,credentials: HTTPBasicCredentials = Depends(securit
         </html>
         """
     else:
-        response.status_code = status.HTTP_401_UNAUTHORIZED
+        raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED)
 
 
 
