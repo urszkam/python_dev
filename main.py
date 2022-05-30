@@ -16,19 +16,18 @@ app = FastAPI()
 app.secret_key = "very constant and random secret, best 64+ characters"
 app.access_tokens = []
 security = HTTPBasic()
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="templates/")
 
 @app.post('/check', response_class= HTMLResponse, status_code = 200)
-def login(credentials: HTTPBasicCredentials = Depends(security)):
+def login(response:Response, credentials: HTTPBasicCredentials = Depends(security)):
     today = datetime.datetime.now()
     birthdate = datetime.datetime.strptime(credentials.password, "%Y-%m-%d")
     age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
 
     if age >= 16:
-        return templates.TemplateResponse("check.html.j2", {"username": credentials.username, "age": age})
+        return templates.TemplateResponse("check.html", {"username": credentials.username, "age": age})
     else:
-        raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED)
+        response.status_code = status.HTTP_401_UNAUTHORIZED
 
 
 
