@@ -25,10 +25,19 @@ def login(response:Response, credentials: HTTPBasicCredentials = Depends(securit
     age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
 
     if age >= 16:
-        return templates.TemplateResponse("check.html", {"username": credentials.username, "age": age})
+        return """<html>
+            <head>
+            </head>
+            <body>
+                <h1>Welcome tester! You are 22</h1>
+            </body>
+            </html>"""
     else:
         response.status_code = status.HTTP_401_UNAUTHORIZED
 
+
+@app.put('/save/{string:path}', status_code =200)
+def new_path(string: str):
 
 
 # @app.post('/info/{?format}')
