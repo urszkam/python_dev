@@ -38,6 +38,7 @@ def login(response:Response, credentials: HTTPBasicCredentials = Depends(securit
 
 @app.put('/save/{string:path}', status_code =200)
 def new_path(string: str):
+    pass
 
 
 # @app.post('/info/{?format}')
