@@ -35,18 +35,32 @@ def login(response:Response, credentials: HTTPBasicCredentials = Depends(securit
     else:
         response.status_code = status.HTTP_401_UNAUTHORIZED
 
-
-@app.put('/save/{string:path}', status_code =200)
+paths = []
+@app.put('/save/{string}', response: Response, status_code =200)
 def new_path(string: str):
-    pass
+    if string not in paths:
+        paths.append(string)
+        response.status_code = status.HTTP_400_BAD_REQUEST
 
 
-# @app.post('/info/{?format}')
+
+@app.post('/info')
+def format(format: str, status_code_200, response:Response, response_class= HTMLResponse,):
+    if format == 'json':
+        return {"user_agent": "EDGE_UA"}
+    elif format == 'html': """
+        <html>
+        <input type="text" id=user-agent name=agent value="{EDGE_UA}">
+        </html>
+        """
+    else:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+
+
+
 # HTMLResponse(content=html_content, status_code=200)
 # if json:
-# {
-#     "user_agent": "<wartość headera User-Agent wyslanego przez użytkownika>"
-# }
+
 
 
 
