@@ -35,12 +35,12 @@ def login(response:Response, credentials: HTTPBasicCredentials = Depends(securit
     else:
         response.status_code = status.HTTP_401_UNAUTHORIZED
 
-# paths = []
-# @app.put('/save/{string}', response: Response, status_code =200)
-# def new_path(string: str):
-#     if string not in paths:
-#         paths.append(string)
-#         response.status_code = status.HTTP_400_BAD_REQUEST
+paths = []
+@app.put('/save/{pathh:path}', status_code =200)
+async def new_path(pathh: str, response:Response):
+    paths.append(pathh)
+    response.status_code = status.HTTP_200_OK
+
 
 
 
