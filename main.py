@@ -4,23 +4,32 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 import datetime
-
+import aiosqlite
 import sqlite3
-conn = sqlite3.connect('northwind.db')
-conn.close()
+# conn = sqlite3.connect('northwind.db')
+# conn.close()
 
 app = FastAPI()
 app.secret_key = "very constant and random secret, best 64+ characters"
 
+@app.on_event("startup")
+async def startup():
+    app.db_connection = await aiosqlite.connect("northwind.db")
+    app.db_connection.text_factory = lambda b: b.decode(errors="ignore")  # northwind specific
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    await app.db_connection.close()
+
 
 @app.get("/suppliers", status_code = 200)
-async def products():
+async def suppliers():
     cursor = await app.db_connection.cursor()
-    products_query = await cursor.execute("SELECT * FROM Suppliers ORDER BY SupplierID")
-    products = await products_query.fetchall()
-    return {
-        "suppliers": products,
-    }
+    app.db_connection.row_factory = aiosqlite.Row
+    suppliersid_query = await cursor.execute("SELECT SupplierID, CompanyName FROM Suppliers ORDER BY SupplierID")
+    suppliersid = await suppliersid_query.fetchall()
+    return [{"SupplierID": x["SupplierID"], "CompanyName": x["CompanyName"]} for x in suppliersid]
 
 # app.access_tokens = []
 # security = HTTPBasic()
