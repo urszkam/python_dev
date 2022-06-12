@@ -31,6 +31,18 @@ async def suppliers():
     suppliersid = await suppliersid_query.fetchall()
     return [{"SupplierID": x["SupplierID"], "CompanyName": x["CompanyName"]} for x in suppliersid]
 
+@app.get("/suppliers/{id}", status_code = 200)
+async def supplierss(id: int, response: Response):
+    cursor = await app.db_connection.cursor()
+    app.db_connection.row_factory = aiosqlite.Row
+    suppliersid_query = await cursor.execute(f"SELECT * FROM Suppliers WHERE SupplierID = {id}")
+    suppliersid = await suppliersid_query.fetchall()
+    return id, suppliersid
+    # if suppliersid is None:
+    #     response.status_code = status.HTTP_200_OK
+    # else:
+    #     response.status_code = status.HTTP_404_NOT_FOUND
+
 # app.access_tokens = []
 # security = HTTPBasic()
 # templates = Jinja2Templates(directory="templates/")
