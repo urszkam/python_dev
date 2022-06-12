@@ -1,308 +1,219 @@
-import pygame
-import pygame_widgets as pw
-from pygame_widgets.button import Button
-import time
-import sys
+from fastapi import FastAPI, Request, HTTPException, Response, status, Cookie, Depends
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
+from pydantic import BaseModel
+import datetime
 
-class Cube:
-    rows = 9
-    cols = 9
+import sqlite3
+conn = sqlite3.connect('northwind.db')
+conn.close()
 
-
-def SetOutline():
-    for i in range(9):
-        for j in range(9):
-            if grid[i][j] != 0:
-                pygame.draw.rect(screen, (233, 245, 251), (i * gap, j * gap, gap + 1, gap + 1))
-                info = a_font.render(str(grid[i][j]), True, (2, 9, 13))
-                screen.blit(info, (i * gap + 15, j * gap + 10))
-    for i in range(10):
-        if i % 3 == 0 and i != 0:
-            width = 4 
-        else:
-            width = 2
-        pygame.draw.line(screen, (2, 9, 13), (i * gap, 0), (i * gap, 495), width)
-        pygame.draw.line(screen, (12, 9, 13), (0, i * gap), (495, i * gap), width) 
+app = FastAPI()
+app.secret_key = "very constant and random secret, best 64+ characters"
 
 
-# Solving using Backtracking Algorithm
-def SolveGrid(gridArray, i, j):
+@app.get("/suppliers", status_code = 200)
+async def products():
+    cursor = await app.db_connection.cursor()
+    products_query = await cursor.execute("SELECT * FROM Suppliers ORDER BY SupplierID")
+    products = await products_query.fetchall()
+    return {
+        "suppliers": products,
+    }
 
-    global IsSolving
-    IsSolving = True
-    while gridArray[i][j] != 0:
-        if i < 8:
-            i += 1
-        elif i == 8 and j < 8:
-            i = 0
-            j += 1
-        elif i == 8 and j == 8:
-            return True
-    pygame.event.pump()
-    for V in range(1, 10):
-        if IsUserValueValid(gridArray, i, j, V):
-            gridArray[i][j] = V
-            if SolveGrid(gridArray, i, j):
-                return True
-            else:
-                gridArray[i][j] = 0
-        screen.fill((255, 255, 255))
-        SetOutline()
-        DrawSelectedBox()
-        DrawModes()
-        DrawSolveButton()
-        pygame.display.update()
-        pygame.time.delay(5)
-    return False
+# app.access_tokens = []
+# security = HTTPBasic()
+# templates = Jinja2Templates(directory="templates/")
 
+# @app.post('/check', response_class= HTMLResponse, status_code = 200)
+# def login(response:Response, credentials: HTTPBasicCredentials = Depends(security)):
+#     today = datetime.datetime.now()
+#     birthdate = datetime.datetime.strptime(credentials.password, "%Y-%m-%d")
+#     age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
 
-def SetMousePosition(p):
-    global x, y
-    if p[0] < 500 and p[1] < 500:
-        x = p[0] // gap
-        y = p[1] // gap
+#     if age >= 16:
+#         return """<html>
+#             <head>
+#             </head>
+#             <body>
+#                 <h1>Welcome tester! You are 22</h1>
+#             </body>
+#             </html>"""
+#     else:
+#         response.status_code = status.HTTP_401_UNAUTHORIZED
 
-
-# checks if inserted val is valid
-def IsUserValueValid(m, i, j, v):
-    for ii in range(9):
-        if m[i][ii] == v or m[ii][j] == v:  # checks cols and rows
-            return False
-    # checks the box/block
-    ii = i // 3
-    jj = j // 3
-    for i in range(ii * 3, ii * 3 + 3):
-        for j in range(jj * 3, jj * 3 + 3):
-            if m[i][j] == v:
-                return False
-    return True
+# paths = []
+# @app.put('/save/{pathh:path}', status_code =200)
+# async def new_path(pathh: str, response:Response):
+#     paths.append(pathh)
+#     response.status_code = status.HTTP_200_OK
 
 
-# highlighting the selected cell
-def DrawSelectedBox():
-    for i in range(2):
-        pygame.draw.line(screen, (0, 0, 255), (x * gap, (y + i) * gap), (x * gap + gap, (y + i) * gap), 5)
-        pygame.draw.line(screen, (0, 0, 255), ((x + i) * gap, y * gap), ((x + i) * gap, y * gap + gap), 5)
 
 
-# insert value entered by user
-def InsertValue(Value):
-    grid[int(x)][int(y)] = Value
-    text = a_font.render(str(Value), True, (0, 0, 0))
-    screen.blit(text, (x * gap + 15, y * gap + 15))
+# # @app.post('/info')
+# # def format(format: str, status_code_200, response:Response, response_class= HTMLResponse,):
+# #     if format == 'json':
+# #         return {"user_agent": "EDGE_UA"}
+# #     elif format == 'html': """
+# #         <html>
+# #         <input type="text" id=user-agent name=agent value="{EDGE_UA}">
+# #         </html>
+# #         """
+# #     else:
+# #         response.status_code = status.HTTP_400_BAD_REQUEST
 
 
-def IsUserWin():
-    for i in range(9):
-        for j in range(9):
-            if grid[int(i)][int(j)] == 0:
-                return False
-    return True
+
+# # HTMLResponse(content=html_content, status_code=200)
+# # if json:
 
 
-def DrawModes():
-    TitleFont = pygame.font.SysFont("times", 20, "bold")
-    AttributeFont = pygame.font.SysFont("times", 20)
-    screen.blit(TitleFont.render("Game Settings", True, (0, 0, 0)), (15, 505))
-    screen.blit(AttributeFont.render("C: Clear", True, (0, 0, 0)), (30, 530))
-    screen.blit(TitleFont.render("Modes", True, (0, 0, 0)), (15, 555))
-    screen.blit(AttributeFont.render("E: Easy", True, (0, 0, 0)), (30, 580))
-    screen.blit(AttributeFont.render("A: Average", True, (0, 0, 0)), (30, 605))
-    screen.blit(AttributeFont.render("H: Hard", True, (0, 0, 0)), (30, 630))
 
 
-def DrawSolveButton():
-    my_button = Button(
-        screen, 350, 600, 120, 50, text='Solve',
-        fontSize=20, margin=20,
-        inactiveColour=(0, 0, 255),
-        pressedColour=(0, 255, 0), radius=20,
-        onClick=lambda: SolveGrid(grid, 0, 0))
-    my_button.listen(pygame.event.get())
-    my_button.draw()
-    pw.update(pygame.event.get())
-    pygame.display.update()
 
 
-def DisplayMessage(Message, Interval, Color):
-    screen.blit(a_font.render(Message, True, Color), (220, 530))
-    pygame.display.update()
-    pygame.time.delay(Interval)
-    screen.fill((255, 255, 255))
-    DrawModes()
-    DrawSolveButton()
 
 
-def SetGridMode(Mode):
-    global grid
-    screen.fill((255, 255, 255))
-    DrawModes()
-    DrawSolveButton()
-    if Mode == 0:
-        grid = [
-            [0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-    elif Mode == 1:
-        grid = [
-            [4, 1, 0, 2, 7, 0, 8, 0, 5],
-            [0, 8, 5, 1, 4, 6, 0, 9, 7],
-            [0, 7, 0, 5, 8, 0, 0, 4, 0],
-            [9, 2, 7, 4, 5, 1, 3, 8, 6],
-            [5, 3, 8, 6, 9, 7, 4, 1, 2],
-            [1, 6, 4, 3, 2, 8, 7, 5, 9],
-            [8, 5, 2, 7, 0, 4, 9, 0, 0],
-            [0, 9, 0, 8, 0, 2, 5, 7, 4],
-            [7, 4, 0, 9, 6, 5, 0, 2, 8],
-        ]
-    elif Mode == 2:
-        grid = [
-            [7, 8, 0, 4, 0, 0, 1, 2, 0],
-            [6, 0, 0, 0, 7, 5, 0, 0, 9],
-            [0, 0, 0, 6, 0, 1, 0, 7, 8],
-            [0, 0, 7, 0, 4, 0, 2, 6, 0],
-            [0, 0, 1, 0, 5, 0, 9, 3, 0],
-            [9, 0, 4, 0, 6, 0, 0, 0, 5],
-            [0, 7, 0, 3, 0, 0, 0, 1, 2],
-            [1, 2, 0, 0, 0, 7, 4, 0, 0],
-            [0, 4, 9, 2, 0, 6, 0, 0, 7]
-        ]
-    elif Mode == 3:
-        grid = [
-            [0, 2, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 6, 0, 0, 0, 0, 3],
-            [0, 7, 4, 0, 8, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 3, 0, 0, 2],
-            [0, 8, 0, 0, 4, 0, 0, 1, 0],
-            [6, 0, 0, 5, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 7, 8, 0],
-            [5, 0, 0, 0, 0, 9, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 4, 0],
-        ]
 
 
-def HandleEvents():
-    global IsRunning, grid, x, y, UserValue
-    events = pygame.event.get()
-    for event in events:
-        if event.type == pygame.QUIT:
-            IsRunning = False
-            sys.exit()
-        # Get the mouse position to insert number
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            SetMousePosition(pygame.mouse.get_pos())
-        if event.type == pygame.KEYDOWN:
-            if not IsSolving:
-                if event.key == pygame.K_LEFT:
-                    x -= 1
-                if event.key == pygame.K_RIGHT:
-                    x += 1
-                if event.key == pygame.K_UP:
-                    y -= 1
-                if event.key == pygame.K_DOWN:
-                    y += 1
-                if event.key == pygame.K_1:
-                    UserValue = 1
-                if event.key == pygame.K_2:
-                    UserValue = 2
-                if event.key == pygame.K_3:
-                    UserValue = 3
-                if event.key == pygame.K_4:
-                    UserValue = 4
-                if event.key == pygame.K_5:
-                    UserValue = 5
-                if event.key == pygame.K_6:
-                    UserValue = 6
-                if event.key == pygame.K_7:
-                    UserValue = 7
-                if event.key == pygame.K_8:
-                    UserValue = 8
-                if event.key == pygame.K_9:
-                    UserValue = 9
-                if event.key == pygame.K_c:
-                    SetGridMode(0)
-                if event.key == pygame.K_e:
-                    SetGridMode(1)
-                if event.key == pygame.K_a:
-                    SetGridMode(2)
-                if event.key == pygame.K_h:
-                    SetGridMode(3)
-    my_button = Button(
-        screen, 350, 600, 120, 50, text='Solve',
-        fontSize=20, margin=20,
-        inactiveColour=(0, 0, 255),
-        pressedColour=(0, 255, 0), radius=20,
-        onClick=lambda: SolveGrid(grid, 0, 0))
-    my_button.listen(events)
-    my_button.draw()
-    pw.update(events)
-    pygame.display.update()
 
 
-def DrawUserValue():
-    global UserValue, IsSolving
-    if UserValue > 0:
-        if IsUserValueValid(grid, x, y, UserValue):
-            if grid[int(x)][int(y)] == 0:
-                InsertValue(UserValue)
-                UserValue = 0
-                if IsUserWin():
-                    IsSolving = False
-                    DisplayMessage("YOU WON!!!!", 5000, (0, 255, 0))
-            else:
-                UserValue = 0
-        else:
-            DisplayMessage("Incorrect Value", 500, (255, 0, 0))
-            UserValue = 0
 
 
-def InitializeComponent():
-    SetOutline()
-    DrawSelectedBox()
-    DrawModes()
-    DrawSolveButton()
-    pygame.display.update()
 
 
-def GameThread():
-    InitializeComponent()
-    while IsRunning:
-        HandleEvents()
-        SetOutline()
-        DrawSelectedBox()
-        DrawUserValue()
-        pygame.display.update()
 
 
-if __name__ == '__main__':
-    pygame.font.init()
-    screen = pygame.display.set_mode((500, 675))  # Window size
-    screen.fill((255, 255, 255))
-    pygame.display.set_caption("SudokuApp")
-    a_font = pygame.font.SysFont("times", 30, "bold")  # Different fonts to be used
-    b_font = pygame.font.SysFont("times", 15, "bold")
-    gap = 500 // 9  # Screen size // Number of boxes = each increment
-    x = 0
-    y = 0
-    UserValue = 0
-    grid = [
-        [7, 8, 0, 4, 0, 0, 1, 2, 0],
-        [6, 0, 0, 0, 7, 5, 0, 0, 9],
-        [0, 0, 0, 6, 0, 1, 0, 7, 8],
-        [0, 0, 7, 0, 4, 0, 2, 6, 0],
-        [0, 0, 1, 0, 5, 0, 9, 3, 0],
-        [9, 0, 4, 0, 6, 0, 0, 0, 5],
-        [0, 7, 0, 3, 0, 0, 0, 1, 2],
-        [1, 2, 0, 0, 0, 7, 4, 0, 0],
-        [0, 4, 9, 2, 0, 6, 0, 0, 7],
-    ]
-    IsRunning = True
-    IsSolving = False
-    GameThread()
+
+
+
+
+
+
+# @app.get('/start', response_class= HTMLResponse)
+# def html():
+#     return """
+#     <html>
+#         <head></head>
+#         <body>
+#             <h1>The unix epoch started at 1970-01-01</h1> 
+#         </body>
+#     </html>
+#     """
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# app.counter = -1
+
+# @app.get("/")
+# def root():
+#     return {"start": "1970-01-01"}
+
+# @app.post("/method", status_code=201)
+# def post():
+#     return {"method": "POST"}
+
+# @app.get("/method", status_code=200)
+# def get():
+#     return {"method": "GET"}
+
+# @app.delete("/method", status_code=200)
+# def delete():
+#     return {"method": "DELETE"}
+
+# @app.put("/method", status_code=200)
+# def put():
+#     return {"method": "PUT"}
+
+# @app.options("/method", status_code=200)
+# def options():
+#     return {"method": "OPTIONS"}
+
+# days = {1: "monday", 2: "tuesday", 3: "wednesday", 4: "thursday", 5: "friday", 6: "saturday", 7: "sunday"}
+
+# @app.get("/day")
+# def day(name: str, number: int, response: Response):
+#     if number in days:
+#         if days.get(number) == name:
+#             return days[number]
+#         else:
+#             response.status_code = status.HTTP_400_BAD_REQUEST
+#     else:
+#         response.status_code = status.HTTP_400_BAD_REQUEST
+
+
+# class Item(BaseModel):
+#     date: str
+#     event: str
+
+# @app.put("/events", status_code=200)
+# def add_event(item: Item):
+#     app.counter += 1
+#     global cal
+#     global events
+
+#     cal = {
+#         "id" : app.counter,
+#         "name" : item.event,
+#         "date" : item.date,
+#         "date_added" : datetime.date.today().strftime("%Y-%m-%d"),
+#     }
+    
+#     events = []
+#     events.append(cal)
+
+#     return cal
+
+
+# @app.get("/events/{date}", status_code=200)
+# def event_on_date(date: str, response: Response):
+#     try:
+#         datetime.datetime.strptime(date, "%Y-%m-%d")
+#     except ValueError:
+#         response.status_code = status.HTTP_400_BAD_REQUEST
+#     else:
+#         for e in events:
+#             if date == e['date']:    
+#                 return events
+#             else:
+#                 response.status_code = status.HTTP_404_NOT_FOUND
+    
+# app.get("/events/{date}",status_code=200)
+# def event_date(date: str, response: Response):
+    # try:
+    #     datetime.datetime.strptime(date, "%Y-%m-%d")
+    # except:
+    #     response.status_code = status.HTTP_400_BAD_REQUEST
+    #     return "Nope"
+
+    # for i, event in enumerate(events):
+    #     if date == event['date']:
+    #         index = i
+
+    # if index is not None:
+    #     return events[index]
+    # else:
+    #     response.status_code = status.HTTP_404_NOT_FOUND
+
+
