@@ -18,9 +18,9 @@ async def startup():
     app.db_connection.text_factory = lambda b: b.decode(errors="ignore")  # northwind specific
 
 
-@app.on_event("shutdown")
-async def shutdown():
-    await app.db_connection.close()
+# @app.on_event("shutdown")
+# async def shutdown():
+#     await app.db_connection.close()
 
 
 @app.get("/suppliers", status_code = 200)
