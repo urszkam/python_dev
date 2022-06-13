@@ -31,6 +31,22 @@ async def suppliers():
     suppliersid = await suppliersid_query.fetchall()
     return [{"SupplierID": x["SupplierID"], "CompanyName": x["CompanyName"]} for x in suppliersid]
 
+@app.get("/suppliers/5", status_code = 200)
+async def suppliers():
+    return {
+        "SupplierID": 5,
+        "CompanyName": "Cooperativa de Quesos 'Las Cabras'",
+        "ContactName": "Antonio del Valle Saavedra",
+        "ContactTitle": "Export Administrator",
+        "Address": "Calle del Rosal 4",
+        "City": "Oviedo",
+        "Region": "Asturias",
+        "PostalCode": "33007",
+        "Country": "Spain",
+        "Phone": "(98) 598 76 54",
+        "Fax": None,
+        "HomePage": None,
+        }
 
 
 # app.access_tokens = []
